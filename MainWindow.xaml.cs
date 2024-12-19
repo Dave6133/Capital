@@ -44,8 +44,8 @@ namespace Capital
             StrategyType.DOWNGRADE
 
         };
-           
-            Random _random = new Random();
+
+        Random _random = new Random();
 
         #endregion
 
@@ -68,7 +68,7 @@ namespace Capital
 
         }
 
-        
+
 
         private void _comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -79,12 +79,15 @@ namespace Capital
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Calculate();
+            List<Data> datas = Calculate();
+
+            Draw(datas);
+
         }
 
-        private void Calculate()
+        private List<Data> Calculate()
         {
-            
+
             decimal depoStart = GetDecimalFromString(_depo.Text);
             int startLot = GetIntFromString(_startLot.Text);
             decimal take = GetDecimalFromString(_take.Text);
@@ -97,14 +100,14 @@ namespace Capital
 
             List<Data> datas = new List<Data>();
 
-            foreach(StrategyType type in _strategies)
+            foreach (StrategyType type in _strategies)
             {
                 datas.Add(new Data(depoStart, type));
             }
 
             int lotPercent = startLot;
 
-            decimal percent = startLot * go *100 / depoStart;
+            decimal percent = startLot * go * 100 / depoStart;
 
             decimal multiply = take / stop;
 
@@ -131,18 +134,18 @@ namespace Capital
                     int newLot = CalculateLot(datas[1].ResultDepo, percent, go);
 
                     if (lotPercent < newLot) lotPercent = newLot;
-                    
-                        //============================================= 3 strategy =====================================
 
-                        datas[2].ResultDepo +=(take - comiss) * lotProgress;
+                    //============================================= 3 strategy =====================================
 
-                        lotProgress = CalculateLot(depoStart, minStartPercent * multiply, go);
+                    datas[2].ResultDepo += (take - comiss) * lotProgress;
 
-                        //============================================== 4 strategy ===========================
+                    lotProgress = CalculateLot(depoStart, minStartPercent * multiply, go);
 
-                        datas[3].ResultDepo += (take - comiss) * lotDown;
+                    //============================================== 4 strategy ===========================
 
-                        lotDown = startLot;
+                    datas[3].ResultDepo += (take - comiss) * lotDown;
+
+                    lotDown = startLot;
 
                 }
 
@@ -175,10 +178,12 @@ namespace Capital
 
                 }
 
-                
+
             }
 
             _dataGrid.ItemsSource = datas;
+
+            return datas;
         }
 
         private int CalculateLot(decimal currentDepo, decimal percent, decimal go)
@@ -200,6 +205,46 @@ namespace Capital
             if (int.TryParse(str, out int result)) return result;
 
             return 0;
+        }
+
+        private void Draw(List<Data> datas)
+        {
+            _canvas.Children.Clear();
+
+            int index = _comboBox.SelectedIndex;
+
+            List<decimal> listEquity = datas[index].GetListEquity();
+
+            int count = listEquity.Count;
+
+            decimal maxEquity = listEquity.Max();
+
+            decimal minequity = listEquity.Min();
+
+            double stepX = _canvas.ActualWidth / count;
+
+            double koef = (double)(maxEquity - minequity) / _canvas.ActualHeight;
+
+            double x = 0;
+
+            double y = 0;
+
+            Polyline polyline = new Polyline();
+
+            polyline.Points = new PointCollection();
+
+            polyline.Stroke = Brushes.Black;
+
+            for (int i = 0; i < count; i++)
+            {
+                y = _canvas.ActualHeight - (double)(listEquity[i] - minequity) / koef;
+
+                polyline.Points.Add(new Point(x, y));
+
+                x += stepX;
+            }
+
+            _canvas.Children.Add(polyline);
         }
 
         #endregion
