@@ -229,27 +229,22 @@ namespace Capital
 
             double y = 0;
 
+            Polyline polyline = new Polyline();
+
+            polyline.Points = new PointCollection();
+
+            polyline.Stroke = Brushes.Black;
+
             for (int i = 0; i < count; i++)
             {
-                y = _canvas.ActualHeight - (double)(listEquity[i] - minequity) / koef;
+                y = _canvas.ActualHeight - (double)(listEquity[i] - minequity) / koef;            
 
-                Ellipse ellipse = new Ellipse()
-                {
-                    Width = 2,
-                    Height = 2,
-                    Stroke = Brushes.Black
-                };
-
-                Canvas.SetLeft(ellipse, x);
-
-                Canvas.SetTop(ellipse, y);
-
-                _canvas.Children.Add(ellipse);
+                polyline.Points.Add(new Point(x, y));
 
                 x += stepX;
             }
 
-
+            _canvas.Children.Add(polyline);
         }
 
         #endregion
