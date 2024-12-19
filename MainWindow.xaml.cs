@@ -79,10 +79,13 @@ namespace Capital
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Calculate();
+            List<Data> datas = Calculate();
+
+            Draw(datas);
+
         }
 
-        private void Calculate()
+        private List<Data> Calculate()
         {
             
             decimal depoStart = GetDecimalFromString(_depo.Text);
@@ -179,6 +182,8 @@ namespace Capital
             }
 
             _dataGrid.ItemsSource = datas;
+
+            return datas;
         }
 
         private int CalculateLot(decimal currentDepo, decimal percent, decimal go)
@@ -200,6 +205,51 @@ namespace Capital
             if (int.TryParse(str, out int result)) return result;
 
             return 0;
+        }
+
+        private void Draw(List<Data> datas)
+        {
+            _canvas.Children.Clear();
+
+            int index = _comboBox.SelectedIndex;
+
+            List<decimal> listEquity = datas[index].GetListEquity();
+
+            int count = listEquity.Count;
+
+            decimal maxEquity = listEquity.Max();
+
+            decimal minequity = listEquity.Min();
+
+            double stepX = _canvas.ActualWidth / count;
+
+            double koef = (double)(maxEquity - minequity) / _canvas.ActualHeight;
+
+            double x = 0;
+
+            double y = 0;
+
+            for (int i = 0; i < count; i++)
+            {
+                y = _canvas.ActualHeight - (double)(listEquity[i] - minequity) / koef;
+
+                Ellipse ellipse = new Ellipse()
+                {
+                    Width = 2,
+                    Height = 2,
+                    Stroke = Brushes.Black
+                };
+
+                Canvas.SetLeft(ellipse, x);
+
+                Canvas.SetTop(ellipse, y);
+
+                _canvas.Children.Add(ellipse);
+
+                x += stepX;
+            }
+
+
         }
 
         #endregion
