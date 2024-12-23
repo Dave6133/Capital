@@ -47,15 +47,35 @@ namespace Capital
 
         Random _random = new Random();
 
+        List<Data> datas = new List<Data>();
         #endregion
 
         #region Methods =============================================
 
         private void Init()
         {
+           /* _comboBox.ItemsSource = new List<StrategyType>()
+            {
+                StrategyType.FIX,
+                StrategyType.CAPITALIZATION,
+                StrategyType.PROGRESS,
+                StrategyType.DOWNGRADE
+
+            };
+
+            List<StrategyType> strategyType = new List<StrategyType>();
+            
+            strategyType.Add(StrategyType.FIX);
+            strategyType.Add(StrategyType.CAPITALIZATION);
+            strategyType.Add(StrategyType.PROGRESS);
+            strategyType.Add(StrategyType.DOWNGRADE);
+
+            _comboBox.ItemsSource = strategyType;*/
+
             _comboBox.ItemsSource = _strategies;
             _comboBox.SelectionChanged += _comboBox_SelectionChanged;
             _comboBox.SelectedIndex = 0;
+            _canvas.SizeChanged += _canvas_SizeChanged;
             _depo.Text = "100000";
             _startLot.Text = "10";
             _take.Text = "300";
@@ -68,18 +88,28 @@ namespace Capital
 
         }
 
+        private void _canvas_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (datas.Count != 0)
 
+                Draw(datas);
+        }
 
         private void _comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ComboBox comboBox = (ComboBox)sender;
 
-            int index = comboBox.SelectedIndex;
+            int index = _comboBox.SelectedIndex;
+
+            if (datas.Count != 0)
+
+                Draw(datas);
         }
+
+
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            List<Data> datas = Calculate();
+             datas = Calculate();
 
             Draw(datas);
 
